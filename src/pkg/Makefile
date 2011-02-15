@@ -4,6 +4,7 @@ TARG=dh
 
 GOFILES=\
 	diffie.go\
+	dh_cache.go\
 
 include $(GOROOT)/src/Make.pkg
 
