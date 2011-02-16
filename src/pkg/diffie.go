@@ -1,5 +1,8 @@
 package dh
 
+// Copyright(c) 2011 Abneptis LLC, all rights reserved.
+// Original Author: James D. Nurmi <james@abneptis.com>
+
 import "big"
 import "os"
 import "io"
