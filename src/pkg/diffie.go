@@ -43,7 +43,7 @@ func (self *DHData)ComputePublic()(q *big.Int){
 //
 // Technically could be made to run faster if it didn't
 // validate, but easier here than elsewhere.
-func (self DHData)ComputeShared(in *big.Int)(out *big.Int, err os.Error){
+func (self *DHData)ComputeShared(in *big.Int)(out *big.Int, err os.Error){
   // Ensure 2 < in < self.P 
   if in.Cmp(big.NewInt(2)) != 1 ||  in.Cmp(self.P) != -1 {
      err = os.NewError("Invalid DH Key (size)")
