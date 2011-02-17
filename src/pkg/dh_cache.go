@@ -3,14 +3,11 @@ package dh
 // Copyright(c) 2011 Abneptis LLC, all rights reserved.
 // Original Author: James D. Nurmi <james@abneptis.com>
 
-import "big"
 import "container/vector"
-import "io"
 import "os"
 import "time"
 
 type SimpleDiffieHellmanCache interface {
-  GenerateNew()(*DHData, int64, os.Error)
   GetCurrent(int64)(*DHData, int64, os.Error)
 }
 
@@ -19,39 +16,21 @@ type cachedRecord struct {
   data *DHData
 }
 
+
 type dhCache struct {
-  DefaultLength int
-  DefaultPrime *big.Int
-  DefaultGroup *big.Int
-  DefaultReader io.Reader
+  generator DiffieHellmanGenerator
   DefaultExpiration int64
   cache *vector.Vector
 }
 
-func NewDHCache(l int, g *big.Int, p *big.Int, exp int64, r io.Reader)(*dhCache){
+func NewDHCache(g DiffieHellmanGenerator, exp int64)(*dhCache){
   return &dhCache {
-    DefaultLength: l,
-    DefaultPrime: p,
-    DefaultGroup: g,
-    DefaultReader: r,
+    generator: g,
     DefaultExpiration: exp,
     cache: &vector.Vector{},
   }
 }
 
-func (self *dhCache)GenerateNew()(dhdata *DHData, exp int64, err os.Error){
-  dhdata, err = NewDH(self.DefaultReader, self.DefaultLength, self.DefaultGroup, self.DefaultPrime)
-  if err == nil {
-    cr := cachedRecord {
-      Expires: time.Nanoseconds() + self.DefaultExpiration,
-      data: dhdata,
-    }
-    dhdata.ComputePublic()
-    self.cache.Push(cr)
-    exp = cr.Expires
-  }
-  return
-}
 
 func (self *dhCache)GetCurrent(min int64)(d *DHData, exp int64, err os.Error){
   for i := range(*self.cache){
@@ -66,6 +45,14 @@ func (self *dhCache)GetCurrent(min int64)(d *DHData, exp int64, err os.Error){
       self.cache.Delete(i)
     }
   }
-  d, exp, err = self.GenerateNew()
+  exp = time.Nanoseconds() + self.DefaultExpiration
+  cr := cachedRecord {
+    Expires: exp,
+  }
+  d, err = self.generator.GenerateNew()
+  if err == nil {
+    cr.data = d
+    self.cache.Push(cr)
+  }
   return
 }
