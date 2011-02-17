@@ -14,6 +14,15 @@ type DHData struct {
   public *big.Int
 }
 
+
+
+func NewDHFull(g *big.Int, p *big.Int, s *big.Int)(dhd *DHData, err os.Error){
+  dhd = &DHData {
+    P: p, G:g, s: s,
+  }
+  return
+}
+
 /* NB: L is in BYTES not BITS.  You really don't want to wait for a
 2048 BYTE DH keyex.  */
 func NewDH(r io.Reader, l int, g *big.Int, p *big.Int)(dhd *DHData, err os.Error){

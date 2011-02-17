@@ -19,6 +19,8 @@ type dhGenerator struct {
   SecretSize int
 }
 
+// NewGenerator accepts length in bits, and they will be rounded (up)
+// to the nearest byte.
 func NewGenerator(g, prime *big.Int, bits int)(DiffieHellmanGenerator){
   return dhGenerator {
     Prime: prime,

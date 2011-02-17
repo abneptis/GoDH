@@ -23,11 +23,19 @@ func main(){
   g := big.NewInt(*dhGroup)
   logger.Log("DHGenStart:Prime", prime.String())
   logger.Log("DHGenStart:Group", g.String())
-  mydh, err := dh.NewDH(rand.Reader, (*dhLen + 7)/8, g, prime)
-  if *dhSecret != "" {
-    mydh.S.SetString(*dhSecret, 0)
+  var mydh *dh.DHData
+  var err os.Error
+  
+  if *dhSecret == "" {
+    mydh, err = dh.NewDH(rand.Reader, (*dhLen + 7)/8, g, prime)
+  } else {
+    s, ok := big.NewInt(0).SetString(*dhSecret, 0)
+    if !ok  {
+      logger.Log("Invalid secret", err.String())
+      os.Exit(1)
+    }
+    mydh, err = dh.NewDHFull(g, prime, s)
   }
-  logger.Log("DHGenStart:Secret", mydh.S.String())
   if err != nil {
     logger.Log("DHGenFailure", err)
     os.Exit(1)
